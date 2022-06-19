@@ -70,6 +70,9 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <IncludePath>C:/MinGW/include/rapidjson/include/rapidjson;$(IncludePath)</IncludePath>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -127,7 +130,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="bootstrap.cpp" />
+    <ClCompile Include="code.cpp" />
+    <ClCompile Include="exception.cpp" />
+    <ClCompile Include="line.cpp" />
     <ClCompile Include="Maiky.cpp" />
+    <ClCompile Include="interpreter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="bootstrap.hpp" />
+    <ClInclude Include="code.hpp" />
+    <ClInclude Include="exception.hpp" />
+    <ClInclude Include="interpreter.hpp" />
+    <ClInclude Include="line.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
