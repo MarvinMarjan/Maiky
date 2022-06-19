@@ -47,10 +47,14 @@ int main(int argc, char* argv[])
 	if (!source.could_open())
 		Exception::_file_not_found(source_path);
 
-	Line lines(source.read());
+	else
+	{
+		Line lines(source.read());
 	
-	for (int i = 0; i < lines.get_size(); i++)
-		lines.set_lines_index(Code::remove_start_space(lines[i]), i);
+		for (int i = 0; i < lines.get_size(); i++)
+			lines.set_lines_index(Code::remove_start_space(lines[i]), i);
 
-	exec(lines);
+		exec(lines);
+	}
+
 }

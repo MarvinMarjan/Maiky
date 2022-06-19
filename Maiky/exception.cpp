@@ -18,5 +18,5 @@ void Exception::_initial_code_block_not_detected(Line lines, int highlight)
 
 void Exception::_file_not_found(string path)
 {
-	cout << "ERROR: file " << path << " does not exist" << endl;
+	cout << "ERROR: file " << '\"' + path + '\"' << " does not exist" << endl;
 }
