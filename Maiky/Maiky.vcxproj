@@ -131,18 +131,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="bootstrap.cpp" />
+    <ClCompile Include="buffer.cpp" />
     <ClCompile Include="code.cpp" />
     <ClCompile Include="exception.cpp" />
     <ClCompile Include="line.cpp" />
     <ClCompile Include="Maiky.cpp" />
     <ClCompile Include="interpreter.cpp" />
+    <ClCompile Include="utilities.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bootstrap.hpp" />
+    <ClInclude Include="buffer.hpp" />
     <ClInclude Include="code.hpp" />
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="interpreter.hpp" />
     <ClInclude Include="line.hpp" />
+    <ClInclude Include="utilities.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

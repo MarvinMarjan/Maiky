@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "interpreter.hpp"
+#include "exception.hpp"
 
 using namespace std;
 
@@ -30,4 +31,13 @@ vector<string> Interpreter::read()
 	}
 	
 	return _Buffer;
+}
+
+bool Interpreter::could_open()
+{
+	if (this->file.fail())
+		return false;
+
+	else
+		return true;
 }

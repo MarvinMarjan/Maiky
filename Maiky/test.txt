@@ -1,3 +1,4 @@
 start
-    print "hello, world"
+	print "\n"
+	print "vc me conhece??"
 end
