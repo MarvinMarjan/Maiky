@@ -1,6 +1,4 @@
 {
-    "path": "./test.txt",
-    "args": [
-
-    ]
+	"path": "./test.txt",
+	"args": "Marvin"
 }

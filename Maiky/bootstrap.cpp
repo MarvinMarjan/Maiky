@@ -1,5 +1,7 @@
-#include <rapidjson/include/rapidjson/document.h>
+#include <document.h> // rapidjson/include/rapidjson/document.h
+#include <iostream>
 #include <fstream>
+#include <vector>
 #include <string>
 #include <map>
 
@@ -28,10 +30,13 @@ map<string, string> Bootstrap::check_runtime_config()
 	src.Parse(full_doc.c_str());
 
 	Value& path_key = src["path"];
+	Value& args_key = src["args"];
 
 	string path_val = path_key.GetString();
-
+	string args_val = args_key.GetString();
+	
 	configs.insert(pair<string, string>({ "path", path_val }));
+	configs.insert(pair<string, string>({ "args", args_val }));
 
 	return configs;
 }

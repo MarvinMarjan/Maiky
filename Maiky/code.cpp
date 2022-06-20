@@ -42,14 +42,14 @@ string Code::remove_start_space(string source)
 	return source;
 }
 
-vector<string> Code::get_args(char* argv[], vector<string> line, Variables vars, Line* lines)
+vector<string> Code::get_args(vector<string> args, vector<string> line, Variables vars, Line* lines)
 {
-	vector<string> args;
+	vector<string> args_vec;
 
 	for (int i = 1; i < line.size(); i++)
 	{
 		if (line[i] == "newl")
-			args.push_back("\n");
+			args_vec.push_back("\n");
 
 		else if (line[i][0] == '\"')
 		{
@@ -69,33 +69,53 @@ vector<string> Code::get_args(char* argv[], vector<string> line, Variables vars,
 			full.erase(0, 1);
 			full.erase(full.size() - 2);
 
-			args.push_back(full);
+			args_vec.push_back(full);
 		}
 
 		else if (line[i][0] == '*')
 		{
 			line[i].erase(0, 1);
-			
-			if (vars.exist(line[i]))
-				args.push_back(vars.get_value(line[i]));
 
-			else
+			if (!vars.exist(line[i]))
 			{
 				Exception::_var_not_found(*lines, line[i]);
 				lines->abort = true;
 			}
+
+			else if (i + 1 < line.size() && line[i + 1] == "->")
+			{
+				if (i + 2 >= line.size())
+				{
+					Exception::_missing_attribute(*lines, line[i] + ' ' + line[i + 1]);
+					lines->abort = true;
+				}
+
+				else if (i + 2 < line.size() && line[i + 2] == "type")
+					args_vec.push_back(vars.get_type(line[i]));
+
+				else
+				{
+					Exception::_undefined_attribute(*lines, line[i + 2]);
+					lines->abort = true;
+				}
+
+				i += 2;
+			}
+
+			else
+				args_vec.push_back(vars.get_value(line[i]));
 		}
 
 		else if (line[i][0] == '%')
 		{
 			line[i].erase(0, 1);
 
-			args.push_back(argv[stoi(line[i]) + 1]);
+			args_vec.push_back(args[stoi(line[i]) - 1]);
 		}
 
 		else
-			args.push_back(line[i]);
+			args_vec.push_back(line[i]);
 	}
 
-	return args;
+	return args_vec;
 }

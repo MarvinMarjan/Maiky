@@ -6,11 +6,13 @@
 
 using namespace std;
 
-void Exception::_initial_code_block_not_detected(Line lines)
+void Exception::_initial_code_block_not_detected(Line& lines)
 {
 	cout << "ERROR (line " << lines.get_current_line() + 1 << 
 		") : no initial code block detected:\n\n" << lines[lines.get_current_line()] << endl;
 }
+
+
 
 void Exception::_file_not_found(string path)
 {
@@ -19,11 +21,28 @@ void Exception::_file_not_found(string path)
 
 void Exception::_cmd_not_found(Line lines, string cmd_name)
 {
-	cout << "ERROR (line " << lines.get_current_line() + 1 << "): command " << 
+	cout << "ERROR (line " << lines.get_current_line() + 2 << "): command " << 
 		'\"' + cmd_name + '\"' << " is not a command:\n\n" << lines[lines.get_current_line()] << endl;
 }
 
 void Exception::_var_not_found(Line& line, string var_name)
 {
-	cout << "ERROR (line " << line.get_current_line() + 1 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line()] << endl;
+	cout << "ERROR (line " << line.get_current_line() + 2 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line()] << endl;
+}
+
+
+
+void Exception::_undefined_type(Line line, string type_name)
+{
+	cout << "ERROR (line " << line.get_current_line() + 2 << "): type " << '\"' + type_name + '\"' << " is undefined:\n\n" << line[line.get_current_line()] << endl;
+}
+
+void Exception::_missing_attribute(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + 2 << "): the attribute is missing:" << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl;
+}
+
+void Exception::_undefined_attribute(Line& line, string attribute)
+{
+	cout << "ERROR (line " << line.get_current_line() + 2 << "): the attribute: " << '\"' + attribute + '\"' << " is undefined:\n\n" << line[line.get_current_line()] << endl;
 }

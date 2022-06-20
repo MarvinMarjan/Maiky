@@ -6,6 +6,27 @@
 
 using namespace std;
 
+bool Variables::valid_type(string type)
+{
+	if (type == "string")
+		return true;
+
+	else if (type == "int")
+		return true;
+
+	else if (type == "float")
+		return true;
+
+	else if (type == "bool")
+		return true;
+
+	else if (type == "null")
+		return true;
+
+	else
+		return false;
+}
+
 void Variables::add_var(pair<string, vector<string>> var)
 {
 	this->vars.insert(var);

@@ -1,5 +1,6 @@
 start
 	def u_input string %1
 
-	print "your name is: " *u_input
+	print "your name is: " *u_input newl
+	print "var type: " *u_input -> type
 end

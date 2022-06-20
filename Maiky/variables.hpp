@@ -7,6 +7,8 @@
 class Variables
 {
 public:
+	bool valid_type(std::string type);
+
 	void add_var(std::pair<std::string, std::vector<std::string>> var);
 
 	std::string get_type(std::string var_name);
