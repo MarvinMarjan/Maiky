@@ -138,6 +138,7 @@
     <ClCompile Include="Maiky.cpp" />
     <ClCompile Include="interpreter.cpp" />
     <ClCompile Include="utilities.cpp" />
+    <ClCompile Include="variables.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="bootstrap.hpp" />
@@ -147,6 +148,7 @@
     <ClInclude Include="interpreter.hpp" />
     <ClInclude Include="line.hpp" />
     <ClInclude Include="utilities.hpp" />
+    <ClInclude Include="variables.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

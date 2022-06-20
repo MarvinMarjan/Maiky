@@ -1,4 +1,5 @@
 start
-	print "\n"
-	print "vc me conhece??"
+	def u_input string %1
+
+	print "your name is: " *u_input
 end

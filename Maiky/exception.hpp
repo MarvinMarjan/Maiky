@@ -7,6 +7,10 @@
 class Exception
 {
 public:
-	static void _initial_code_block_not_detected(Line lines, int highlight);
+	static void _initial_code_block_not_detected(Line lines);
+
 	static void _file_not_found(std::string path);
+	static void _cmd_not_found(Line lines, std::string cmd_name);
+	static void _var_not_found(Line& line, std::string var_name);
+
 };

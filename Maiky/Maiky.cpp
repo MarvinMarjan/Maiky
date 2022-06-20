@@ -8,14 +8,16 @@
 #include "bootstrap.hpp"
 #include "exception.hpp"
 #include "utilities.hpp"
+#include "variables.hpp"
 #include "buffer.hpp"
 #include "code.hpp"
 #include "line.hpp"
 
 using namespace std;
 
-void exec(Line& lines)
+void exec(int argc, char* argv[], Line& lines)
 {
+	Variables vars;
 	Buffer buffer;
 
 	for (int i = 0; i < lines.get_size(); i++)
@@ -25,13 +27,31 @@ void exec(Line& lines)
 		if (lines.abort)
 			break;
 
+		if (line.size() == 0)
+		{
+			lines.update();
+			continue;
+		}
+
 		if (line[0] == "print")
 		{
-			line = Code::get_args(line);
+			line = Code::get_args(argv, line, vars, &lines);
 
-			for (string i : line)
-				buffer << i ;
+			if (!lines.abort)
+				for (string i : line)
+					buffer << i;
 		}
+
+		else if (line[0] == "def") 
+		{
+			line = Code::get_args(argv, line, vars, &lines);
+
+			if (!lines.abort)
+				vars.add_var({line[0], {line[1], line[2]}});
+		}
+
+		else
+			Exception::_cmd_not_found(lines, line[0]);
 
 		lines.update();
 	}
@@ -54,7 +74,7 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < lines.get_size(); i++)
 			lines.set_lines_index(Code::remove_start_space(lines[i]), i);
 
-		exec(lines);
+		exec(argc, argv, lines);
 	}
 
 }

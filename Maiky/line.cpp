@@ -20,7 +20,7 @@ Line::Line(vector<string> source)
 
 	else
 	{
-		Exception::_initial_code_block_not_detected(lines, 0);
+		Exception::_initial_code_block_not_detected(lines);
 		this->abort = true;
 	}
 		

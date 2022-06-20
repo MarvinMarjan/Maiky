@@ -13,37 +13,11 @@ vector<string> Utils::split_string(string source)
 
 	for (int i = 0; i < source.size(); i++)
 	{
-		if (source[i] == '\"')
-		{
-			i++;
-
-			while (source[i] != '\"')
-			{
-				buff += (source[i] == '\\' && source[i + 1] == 'n') ? '\n' : source[i];
-
-				if (source[i] == '\\')
-					i++;
-
-				i++;
-			}
-
-			split.push_back(buff);
-			buff = "";
-
-			continue;
-		}
-
-		if (source[i + 1] == 0 || source[i] == ' ')
-		{
-			if (source[i + 1] == 0)
-				buff += source[i];
-
-			split.push_back(buff);
-			buff = "";
-			continue;
-		}
-
-		buff += source[i];
+		while (source[i] != ' ' && i < source.size())
+			buff += source[i++];
+		
+		split.push_back(buff);
+		buff = "";
 	}
 
 	return split;
