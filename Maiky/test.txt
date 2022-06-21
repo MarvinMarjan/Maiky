@@ -8,6 +8,8 @@ start
 	print "choose another value: "
 	input int num2
 
+	print newl
+
 	if *num1 == *num2 then
 		print "the value " *num1 " equals " *num2
 	end

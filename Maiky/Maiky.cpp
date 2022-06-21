@@ -109,7 +109,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& l
 		{
 			line = Code::get_args(args, line, vars, &lines);
 
-			line.erase(find(line.begin(), line.end(), "then"));
+			line.erase(line.end() - 1);
 
 			vector<vector<string>> conds = Condition::get_condition(line);
 			
@@ -176,4 +176,6 @@ int main(int argc, char* argv[])
 
 		exec(argc, program_args, lines, Variables(), aux);
 	}
+
+	cin.get();
 }

@@ -19,7 +19,7 @@ map<string, string> Bootstrap::check_runtime_config()
 	string buff;
 	string full_doc = "";
 
-	rt_file.open("./__maiky_runtime_config__.json");
+	rt_file.open("__maiky_runtime_config__.json");
 
 	while (!rt_file.eof())
 	{
