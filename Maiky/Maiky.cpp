@@ -6,6 +6,7 @@
 
 #include "interpreter.hpp"
 #include "bootstrap.hpp"
+#include "condition.hpp"
 #include "exception.hpp"
 #include "utilities.hpp"
 #include "variables.hpp"
@@ -15,10 +16,12 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines)
+void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& last_lines)
 {
-	Variables vars;
+	Variables vars = ls_vars;
 	Buffer buffer;
+
+	bool cond_res = true;
 
 	for (int i = 0; i < lines.get_size(); i++)
 	{
@@ -42,12 +45,32 @@ void exec(int argc, vector<string> args, Line& lines)
 					buffer << i;
 		}
 
+		else if (line[0] == "input")
+		{
+			line = Code::get_args(args, line, vars, &lines);
+
+			if (vars.exist(line[1]))
+			{
+				string buff;
+
+				getline(cin, buff);
+
+				vars.edit_var(line[1], line[0], buff);
+			}
+
+			else
+			{
+				Exception::_var_not_found(lines, line[1]);
+				lines.abort = true;
+			}
+		}
+
 		else if (line[0] == "def") 
 		{
 			line = Code::get_args(args, line, vars, &lines);
 
 			if (line[1] == "null")
-				line[2] = "null";
+				line.push_back("null");
 
 			if (!vars.valid_type(line[1]))
 			{
@@ -59,11 +82,68 @@ void exec(int argc, vector<string> args, Line& lines)
 				vars.add_var({line[0], {line[1], line[2]}});
 		}
 
-		//else if ()
+		else if (line[0] == "mod")
+		{
+			line = Code::get_args(args, line, vars, &lines);
+
+			if (vars.exist(line[0]))
+			{
+				if (vars.valid_type(line[1]))
+					vars.edit_var(line[0], line[1], line[2]);
+
+				else
+				{
+					Exception::_undefined_type(lines, line[1]);
+					lines.abort = true;
+				}
+			}
+
+			else
+			{
+				Exception::_var_not_found(lines, line[1]);
+				lines.abort = true;
+			}
+		}
+		
+		else if (line[0] == "if")
+		{
+			line = Code::get_args(args, line, vars, &lines);
+
+			line.erase(find(line.begin(), line.end(), "then"));
+
+			vector<vector<string>> conds = Condition::get_condition(line);
+			
+			i++;
+			lines.update();
+
+			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
+			cond_res = Condition::check_all(conds);
+
+			if (cond_res)
+				exec(argc, args, block, vars, lines);
+		}
+
+		else if (line[0] == "else")
+		{
+			i++;
+			lines.update();
+
+			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
+			
+			if (!cond_res)
+				exec(argc, args, block, vars, lines);
+		}
 
 		else
+		{
 			Exception::_cmd_not_found(lines, line[0]);
+			lines.abort = true;
+		}
 
+		//cout << "current: " << lines.get_current_line() << endl;
+		//cout << "true: " << lines.get_true_line() << endl << endl;
+
+		last_lines.update();
 		lines.update();
 	}
 }
@@ -88,11 +168,12 @@ int main(int argc, char* argv[])
 
 	else
 	{
-		Line lines(source.read());
+		Line lines(source.read(), 0, true);
+		Line aux({}, 0, false);
 	
 		for (int i = 0; i < lines.get_size(); i++)
-			lines.set_lines_index(Code::remove_start_space(lines[i]), i);
+			lines.set_lines_index(Code::b_e_remove_space(lines[i]), i);
 
-		exec(argc, program_args, lines);
+		exec(argc, program_args, lines, Variables(), aux);
 	}
 }

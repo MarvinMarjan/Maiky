@@ -133,6 +133,7 @@
     <ClCompile Include="bootstrap.cpp" />
     <ClCompile Include="buffer.cpp" />
     <ClCompile Include="code.cpp" />
+    <ClCompile Include="condition.cpp" />
     <ClCompile Include="exception.cpp" />
     <ClCompile Include="line.cpp" />
     <ClCompile Include="Maiky.cpp" />
@@ -144,6 +145,7 @@
     <ClInclude Include="bootstrap.hpp" />
     <ClInclude Include="buffer.hpp" />
     <ClInclude Include="code.hpp" />
+    <ClInclude Include="condition.hpp" />
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="interpreter.hpp" />
     <ClInclude Include="line.hpp" />

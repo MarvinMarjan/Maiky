@@ -7,23 +7,29 @@
 
 using namespace std;
 
-Line::Line(vector<string> source)
+Line::Line(vector<string> source, int last_i, bool init)
 {
 	this->lines = source;
 	this->current_line = 0;
+	this->true_line = last_i;
 
-	if (this->lines[0] == "start" && this->lines[this->lines.size() - 1] == "end")
+	if (init)
 	{
-		this->lines = Code::get_code_block(*this, 1);
-		this->abort = false;
+		if (this->lines[0] == "start" && this->lines[this->lines.size() - 1] == "end")
+		{
+			this->lines = Code::get_code_block(*this, 1);
+			this->abort = false;
+		}
+
+		else
+		{
+			Exception::_initial_code_block_not_detected(*this);
+			this->abort = true;
+		}
 	}
 
 	else
-	{
-		Exception::_initial_code_block_not_detected(*this);
-		this->abort = true;
-	}
-		
+		this->abort = false;
 }
 
 string Line::operator[](int index)
@@ -59,6 +65,11 @@ int Line::get_size()
 int Line::get_current_line()
 {
 	return this->current_line;
+}
+
+int Line::get_true_line()
+{
+	return this->true_line;
 }
 
 void Line::update()

@@ -32,6 +32,12 @@ void Variables::add_var(pair<string, vector<string>> var)
 	this->vars.insert(var);
 }
 
+void Variables::edit_var(string var_name, string new_type, string new_value)
+{
+	this->vars[var_name][1] = new_value;
+	this->vars[var_name][0] = new_type;
+}
+
 string Variables::get_type(string var_name)
 {
 	return this->vars[var_name][0];

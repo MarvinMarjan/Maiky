@@ -6,7 +6,7 @@
 class Line
 {
 public:
-	Line(std::vector<std::string> source);
+	Line(std::vector<std::string> source, int last_i, bool init);
 
 	std::string operator[](int index);
 	void operator=(std::vector<std::string> lines);
@@ -16,6 +16,7 @@ public:
 
 	int get_size();
 	int get_current_line();
+	int get_true_line();
 
 	void update();
 
@@ -25,4 +26,5 @@ private:
 	std::vector<std::string> lines;
 
 	int current_line;
+	int true_line;
 };

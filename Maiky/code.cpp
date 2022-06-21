@@ -11,6 +11,45 @@
 
 using namespace std;
 
+vector<string> Code::get_code_block(Line& lines, int* start)
+{
+	vector<string> block;
+	bool in_another_block = false;
+
+	for (int i = *start; i < lines.get_size(); i++)
+	{
+		block.push_back(lines[i]);
+
+		if (lines[i] == "")
+			continue;
+
+		else if (Utils::split_string(lines[i])[0] == "if" || Utils::split_string(lines[i])[0] == "else")
+		{
+			i++;
+			vector<string> other_block = Code::get_code_block(lines, &i);
+
+			for (string i : other_block)
+				block.push_back(i);
+
+			block.push_back(lines[i]);
+		}
+		
+		else if (lines[i] == "end" && !in_another_block)
+		{
+			*start = i;
+			block.erase(block.end() - 1);
+		}
+
+		else if (lines[i + 1] == "end" && !in_another_block)
+		{
+			*start = i + 1;
+			break;
+		}
+	}
+
+	return block;
+}
+
 vector<string> Code::get_code_block(Line& lines, int start)
 {
 	vector<string> block;
@@ -18,15 +57,15 @@ vector<string> Code::get_code_block(Line& lines, int start)
 	for (int i = start; i < lines.get_size(); i++)
 	{
 		block.push_back(lines[i]);
-		
-		if (lines[i + 1] == "end")
+
+		if (lines[i + 1] == "end")	
 			break;
 	}
 
 	return block;
 }
 
-string Code::remove_start_space(string source)
+string Code::b_e_remove_space(string source)
 {
 	int i = 0;
 
@@ -38,6 +77,10 @@ string Code::remove_start_space(string source)
 		else
 			break;
 	}
+
+	if (source != "")
+		if (source[source.size() - 1] == ' ' || source[source.size() - 1] == '\t')
+			source.erase(source.size() - 1);
 
 	return source;
 }
@@ -59,7 +102,7 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 			{
 				full += line[o] + ' ';
 
-				if (line[o][line[o].size() - 1] == '\"')
+				if (line[o] != "" && line[o][line[o].size() - 1] == '\"' && Code::b_e_remove_space(full) != "\"")
 				{
 					i = o;
 					break;
@@ -92,6 +135,12 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 
 				else if (i + 2 < line.size() && line[i + 2] == "type")
 					args_vec.push_back(vars.get_type(line[i]));
+
+				else if (i + 2 < line.size() && vars.get_type(line[i]) == "string")
+				{
+					if (line[i + 2] == "size")
+						args_vec.push_back(to_string(vars.get_value(line[i]).size()));
+				}
 
 				else
 				{
