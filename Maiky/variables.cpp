@@ -38,6 +38,11 @@ void Variables::edit_var(string var_name, string new_type, string new_value)
 	this->vars[var_name][0] = new_type;
 }
 
+void Variables::rmv_var(string var_name)
+{
+	this->vars.erase(var_name);
+}
+
 string Variables::get_type(string var_name)
 {
 	return this->vars[var_name][0];

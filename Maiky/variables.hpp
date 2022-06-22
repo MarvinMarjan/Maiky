@@ -11,6 +11,7 @@ public:
 
 	void add_var(std::pair<std::string, std::vector<std::string>> var);
 	void edit_var(std::string var_name, std::string new_type, std::string new_value);
+	void rmv_var(std::string var_name);
 
 	std::string get_type(std::string var_name);
 	std::string get_value(std::string var_name);

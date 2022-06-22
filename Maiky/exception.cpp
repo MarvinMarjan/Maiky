@@ -30,6 +30,11 @@ void Exception::_var_not_found(Line& line, string var_name)
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line()] << endl << endl;
 }
 
+void Exception::_existent_var_def(string var_name, Line line)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): definition of an existing variable: " << '\"' + var_name + '\"' << ":\n\n" << line[line.get_current_line()] << endl << endl;
+
+}
 
 
 void Exception::_undefined_type(Line line, string type_name)

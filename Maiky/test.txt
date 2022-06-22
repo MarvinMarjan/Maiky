@@ -1,26 +1,18 @@
 start
-	def num1 null
-	def num2 null
-	
-	print "choose a value: "
-	input int num1
+	def user null
+	def res string "result: "
 
-	print "choose another value: "
-	input int num2
+	while *user != -1 do
+		input string user
 
-	print newl
-
-	if *num1 == *num2 then
-		print "the value " *num1 " equals " *num2
-	end
-
-	else
-		if *num1 > *num2 then
-			print "the value " *num1 " is greater than " *num2
+		if *user != -1 then
+			mod res string *res + *user + " "
 		end
 
 		else
-			print "the value " *num2 " is greater than " *num1
+			print "encerrando input de usuario..." newl newl
 		end
 	end
+
+	print *res
 end

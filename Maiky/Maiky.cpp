@@ -16,9 +16,9 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& last_lines)
+void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& last_lines)
 {
-	Variables vars = ls_vars;
+	vector<string> scope_vars;
 	Buffer buffer;
 
 	bool cond_res = true;
@@ -72,6 +72,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& l
 			if (line[1] == "null")
 				line.push_back("null");
 
+			if (vars.exist(line[0]))
+			{
+				Exception::_existent_var_def(line[0], lines);
+				lines.abort = true;
+			}
+
 			if (!vars.valid_type(line[1]))
 			{
 				Exception::_undefined_type(lines, line[1]);
@@ -79,7 +85,10 @@ void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& l
 			}
 
 			if (!lines.abort)
+			{
 				vars.add_var({line[0], {line[1], line[2]}});
+				scope_vars.push_back(line[0]);
+			}
 		}
 
 		else if (line[0] == "mod")
@@ -134,6 +143,60 @@ void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& l
 				exec(argc, args, block, vars, lines);
 		}
 
+		else if (line[0] == "elif")
+		{
+			line = Code::get_args(args, line, vars, &lines);
+
+			line.erase(line.end() - 1);
+
+			vector<vector<string>> conds = Condition::get_condition(line);
+
+			i++;
+			lines.update();
+
+			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
+
+			if (!cond_res)
+			{
+				cond_res = Condition::check_all(conds);
+
+				if (cond_res)
+					exec(argc, args, block, vars, lines);
+			}
+		}
+
+		else if (line[0] == "while")
+		{
+			Line cond_line = lines;
+
+			line = Code::get_args(args, line, vars, &cond_line);
+			line.erase(line.end() - 1);
+
+			vector<vector<string>> conds = Condition::get_condition(line);
+			
+			int cond_index = i;
+
+			i++;
+			lines.update();
+
+			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
+			
+			cond_res = Condition::check_all(conds);
+
+			while (cond_res)
+			{
+				exec(argc, args, block, vars, lines);
+				
+				line = Utils::split_string(cond_line[cond_index]);
+				line = Code::get_args(args, line, vars, &cond_line);
+
+				line.erase(line.end() - 1);
+				conds = Condition::get_condition(line);
+
+				cond_res = Condition::check_all(conds);
+			}
+		}
+
 		else
 		{
 			Exception::_cmd_not_found(lines, line[0]);
@@ -146,6 +209,9 @@ void exec(int argc, vector<string> args, Line& lines, Variables ls_vars, Line& l
 		last_lines.update();
 		lines.update();
 	}
+
+	for (string i : scope_vars)
+		vars.rmv_var(i);
 }
  
 int main(int argc, char* argv[])
@@ -174,7 +240,9 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < lines.get_size(); i++)
 			lines.set_lines_index(Code::b_e_remove_space(lines[i]), i);
 
-		exec(argc, program_args, lines, Variables(), aux);
+		Variables vars;
+
+		exec(argc, program_args, lines, vars, aux);
 	}
 
 	cin.get();

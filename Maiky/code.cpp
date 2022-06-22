@@ -23,7 +23,7 @@ vector<string> Code::get_code_block(Line& lines, int* start)
 		if (lines[i] == "")
 			continue;
 
-		else if (Utils::split_string(lines[i])[0] == "if" || Utils::split_string(lines[i])[0] == "else")
+		else if (Utils::split_string(lines[i])[0] == "if" || Utils::split_string(lines[i])[0] == "else" || Utils::split_string(lines[i])[0] == "while")
 		{
 			i++;
 			vector<string> other_block = Code::get_code_block(lines, &i);
@@ -38,6 +38,7 @@ vector<string> Code::get_code_block(Line& lines, int* start)
 		{
 			*start = i;
 			block.erase(block.end() - 1);
+			break;
 		}
 
 		else if (lines[i + 1] == "end" && !in_another_block)
@@ -160,6 +161,20 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 			line[i].erase(0, 1);
 
 			args_vec.push_back(args[stoi(line[i]) - 1]);
+		}
+
+		else if (line[i] == "+")
+		{
+			vector<string> aux = { "_null_" };
+
+			for (int o = i + 1; o < line.size(); o++)
+			{
+				aux.push_back(line[o]);
+				i = o;
+			}
+
+			args_vec[args_vec.size() - 1] = args_vec[args_vec.size() - 1] + Code::get_args(args, aux, vars, lines)[0];
+			i++;
 		}
 
 		else
