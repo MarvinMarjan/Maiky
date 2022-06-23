@@ -30,6 +30,7 @@ void Exception::_var_not_found(Line& line, string var_name)
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line()] << endl << endl;
 }
 
+
 void Exception::_existent_var_def(string var_name, Line line)
 {
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): definition of an existing variable: " << '\"' + var_name + '\"' << ":\n\n" << line[line.get_current_line()] << endl << endl;
@@ -42,17 +43,25 @@ void Exception::_undefined_type(Line line, string type_name)
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): type " << '\"' + type_name + '\"' << " is undefined:\n\n" << line[line.get_current_line()] << endl << endl;
 }
 
-void Exception::_missing_attribute(Line& line, string _where)
-{
-	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute is missing:" << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
-}
-
-void Exception::_missing_index(Line& line, string _where)
-{
-	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the index is missing:" << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
-}
-
 void Exception::_undefined_attribute(Line& line, string attribute)
 {
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute: " << '\"' + attribute + '\"' << " is undefined:\n\n" << line[line.get_current_line()] << endl;
+}
+
+
+void Exception::_missing_attribute(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute is missing: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
+
+void Exception::_missing_index(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the index is missing: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
+
+void Exception::_array_size_overflow(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): an array overflow happened: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
 }

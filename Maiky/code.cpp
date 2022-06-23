@@ -23,7 +23,7 @@ vector<string> Code::get_code_block(Line& lines, int* start)
 		if (lines[i] == "")
 			continue;
 
-		else if (Utils::split_string(lines[i])[0] == "if" || Utils::split_string(lines[i])[0] == "elif" || Utils::split_string(lines[i])[0] == "else" || Utils::split_string(lines[i])[0] == "while")
+		else if (Utils::split_string(lines[i])[0] == "if" || Utils::split_string(lines[i])[0] == "elif" || Utils::split_string(lines[i])[0] == "else" || Utils::split_string(lines[i])[0] == "while" || Utils::split_string(lines[i])[0] == "for")
 		{
 			i++;
 			vector<string> other_block = Code::get_code_block(lines, &i);
@@ -127,21 +127,77 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 			{
 				Exception::_var_not_found(*lines, line[i]);
 				lines->abort = true;
+				break;
 			}
 
-			else if (i + 1 < line.size() && line[i + 1] == ":" && vars.get_type(line[i]) == "array")
+			else if (i + 1 < line.size() && line[i + 1] == ":")
 			{
-				if (i + 2 >= line.size())
+				if (vars.get_type(line[i]) == "array")
 				{
-					Exception::_missing_index(*lines, line[i] + ' ' + line[i + 1]);
-					lines->abort = true;
+					if (i + 2 >= line.size())
+					{
+						Exception::_missing_index(*lines, line[i] + ' ' + line[i + 1]);
+						lines->abort = true;
+						break;
+					}
+
+					else
+					{
+						vector<string> value = { "_null_" };
+						int i_line = 0;
+
+						for (int o = i + 2; o < line.size(); o++)
+						{
+							value.push_back(line[o]);
+							i_line++;
+						}
+
+						vector<string> index = Code::get_args(args, value, vars, lines, false);
+
+						if (stoi(index[0]) >= vars.get_array_values(line[i]).size())
+						{
+							Exception::_array_size_overflow(*lines, line[i] + " " + line[i + 1] + " " + line[i + 2]);
+							lines->abort = true;
+							break;
+						}
+
+						else
+							args_vec.push_back(vars.get_array_values(line[i])[stoi(index[0])]);
+						
+						i = i_line;
+					}
+
+					i += 2;
 				}
 
-				else
+				else if (vars.get_type(line[i]) == "string")
 				{
-					vector<string> index = Code::get_args(args, { "_null_", line[i + 2] }, vars, lines, false);
+					vector<string> value = { "_null_" };
+					int i_line = 0;
 
-					args_vec.push_back(vars.get_array_values(line[i])[stoi(index[0])]);
+					for (int o = i + 2; o < line.size(); o++)
+					{
+						value.push_back(line[o]);
+						i_line++;
+					}
+
+					vector<string> index = Code::get_args(args, value, vars, lines, false);
+
+					if (stoi(index[0]) >= vars.get_array_values(line[i]).size())
+					{
+						Exception::_array_size_overflow(*lines, line[i] + " " + line[i + 1] + " " + line[i + 2]);
+						lines->abort = true;
+						break;
+					}
+
+					else
+					{
+						string ch(1, vars.get_value(line[i])[stoi(index[0])]);
+
+						args_vec.push_back(ch);
+					}
+
+					i = i_line;
 				}
 
 				i += 2;
@@ -153,6 +209,7 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 				{
 					Exception::_missing_attribute(*lines, line[i] + ' ' + line[i + 1]);
 					lines->abort = true;
+					break;
 				}
 
 				else if (i + 2 < line.size() && line[i + 2] == "type")
@@ -162,18 +219,59 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 				{
 					if (line[i + 2] == "size")
 						args_vec.push_back(to_string(vars.get_value(line[i]).size()));
+
+					else
+					{
+						Exception::_undefined_attribute(*lines, line[i + 2]);
+						lines->abort = true;
+						break;
+					}
 				}
 
 				else if (i + 2 < line.size() && vars.get_type(line[i]) == "array")
 				{
 					if (line[i + 2] == "size")
 						args_vec.push_back(to_string(vars.get_array_values(line[i]).size()));
+
+					else if (line[i + 2] == "find")
+					{
+						vector<string> value = {"_null_"};
+						int i_line = 0;
+
+						for (int o = i + 3; o < line.size(); o++)
+						{
+							value.push_back(line[o]);
+							i_line++;
+						}
+
+						value = Code::get_args(args, value, vars, lines, false);
+
+						int index = vars.find_array_value(line[i], value[0]);
+
+						args_vec.push_back(to_string(index));
+						i = i_line;
+						i++;
+					}
+
+					else
+					{
+						Exception::_undefined_attribute(*lines, line[i + 2]);
+						lines->abort = true;
+						break;
+					}
+				}
+
+				else if (i + 2 < line.size() && vars.get_type(line[i]) == "iterator")
+				{
+					if (line[i + 2] == "index")
+						args_vec.push_back(to_string(vars.get_iterator_index(line[i])));
 				}
 
 				else
 				{
 					Exception::_undefined_attribute(*lines, line[i + 2]);
 					lines->abort = true;
+					break;
 				}
 
 				i += 2;
@@ -191,7 +289,6 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 
 				args_vec.push_back(vals_str);
 			}
-
 
 			else
 				args_vec.push_back(vars.get_value(line[i]));

@@ -48,11 +48,17 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 			else if (1 < line.size() && line[1] == "->")
 			{
-				if (2 < line.size() && line[2] == "add")
+				if (vars.get_type(line[0]) == "array")
 				{
-					vector<string> val = Code::get_args(args, { "_null_", line[3] }, vars, &lines, true);
+					if (2 < line.size() && line[2] == "add")
+					{
+						vector<string> val = Code::get_args(args, { "_null_", line[3] }, vars, &lines, true);
 
-					vars.add_array_value(line[0], val[0]);
+						vars.add_array_value(line[0], val[0]);
+					}
+
+					else if (2 < line.size() && line[2] == "del")
+						vars.rmv_array_value(line[0], stoi(line[3]));
 				}
 			}
 		}
@@ -88,7 +94,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "def") 
 		{
-			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, true);
+			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, false);
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (line[1] == "null")
@@ -129,22 +135,37 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 		{
 			line = Code::get_args(args, line, vars, &lines, false);
 
-			if (vars.exist(line[0]))
+			if (!lines.abort)
 			{
-				if (vars.valid_type(line[1]))
-					vars.edit_var(line[0], line[1], line[2]);
+				if (vars.exist(line[0]))
+				{
+					if (vars.valid_type(line[1]) || line[1] == ":")
+					{
+						if (vars.get_type(line[0]) == "array")
+						{
+							if (line[1] == ":")
+								vars.edit_array_value(line[0], line[4], stoi(line[2]));
+
+							else
+								vars.edit_var(line[0], line[1], line[2]);
+						}
+
+						else
+							vars.edit_var(line[0], line[1], line[2]);
+					}
+
+					else
+					{
+						Exception::_undefined_type(lines, line[1]);
+						lines.abort = true;
+					}
+				}
 
 				else
 				{
-					Exception::_undefined_type(lines, line[1]);
+					Exception::_var_not_found(lines, line[1]);
 					lines.abort = true;
 				}
-			}
-
-			else
-			{
-				Exception::_var_not_found(lines, line[1]);
-				lines.abort = true;
 			}
 		}
 		
@@ -232,6 +253,29 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 			if (!cond_res)
 				i++;
+		}
+
+		else if (line[0] == "for")
+		{
+			line = Code::get_args(args, line, vars, &lines, false);
+			line.erase(line.end() - 1);
+
+			vars.add_iterator(line[0], "_null_", -1);
+
+			i++;
+			lines.update();
+
+			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
+
+			if (line[1] == "in")
+			{
+				for (int o = 0; o < vars.get_array_values(line[2]).size(); o++)
+				{
+					vars.edit_iterator(line[0], vars.get_array_values(line[2])[o], o);
+
+					exec(argc, args, block, vars, lines);
+				}
+			}
 		}
 
 		else

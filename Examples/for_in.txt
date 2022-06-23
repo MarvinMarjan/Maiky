@@ -1,0 +1,40 @@
+start
+	def name array
+	def value array
+
+	def inp null
+
+	while *inp != ".exit" do
+		print "[ add ]" newl "[ list ]" newl newl
+		
+		input string inp
+		print newl
+
+		if *inp == "add" then
+			print "name: "
+			input string inp
+
+			*name -> add *inp
+
+			print "value: "
+			input string inp
+
+			*value -> add *inp
+			print newl
+		end
+
+		elif *inp == "list" then	
+			for item in name do
+				print *item ": "
+				print *value : *item -> index
+				print newl
+			end
+
+			print newl
+		end
+
+		else
+			print "the command: " *inp " is not a command" newl newl
+		end
+	end
+end
