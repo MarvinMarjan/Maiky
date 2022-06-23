@@ -9,12 +9,15 @@ class Variables
 public:
 	bool valid_type(std::string type);
 
+	void add_array_value(std::string arr_name, std::string arr_value);
+	void add_array(std::string var_name, std::vector<std::string> vals, std::string var_type);
 	void add_var(std::pair<std::string, std::vector<std::string>> var);
 	void edit_var(std::string var_name, std::string new_type, std::string new_value);
 	void rmv_var(std::string var_name);
 
 	std::string get_type(std::string var_name);
 	std::string get_value(std::string var_name);
+	std::vector<std::string> get_array_values(std::string var_name);
 
 	bool exist(std::string var_name);
 

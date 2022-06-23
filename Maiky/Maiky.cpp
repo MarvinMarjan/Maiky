@@ -36,9 +36,30 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			continue;
 		}
 
-		if (line[0] == "print")
+		if (line[0][0] == '*')
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			line[0].erase(0, 1);
+
+			if (!vars.exist(line[0]))
+			{
+				Exception::_var_not_found(lines, line[0]);
+				lines.abort = true;
+			}
+
+			else if (1 < line.size() && line[1] == "->")
+			{
+				if (2 < line.size() && line[2] == "add")
+				{
+					vector<string> val = Code::get_args(args, { "_null_", line[3] }, vars, &lines, true);
+
+					vars.add_array_value(line[0], val[0]);
+				}
+			}
+		}
+
+		else if (line[0] == "print")
+		{
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (!lines.abort)
 				for (string i : line)
@@ -47,7 +68,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "input")
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (vars.exist(line[1]))
 			{
@@ -67,7 +88,8 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "def") 
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, true);
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (line[1] == "null")
 				line.push_back("null");
@@ -86,14 +108,26 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 			if (!lines.abort)
 			{
-				vars.add_var({line[0], {line[1], line[2]}});
+				if (line[1] == "array")
+				{
+					vector<string> vals;
+
+					for (int o = 2; o < quotes_line.size(); o++)
+						vals.push_back(quotes_line[o]);
+
+					vars.add_array(quotes_line[0], vals, quotes_line[1]);
+				}
+
+				else
+					vars.add_var({line[0], {line[1], line[2]}});
+
 				scope_vars.push_back(line[0]);
 			}
 		}
 
 		else if (line[0] == "mod")
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (vars.exist(line[0]))
 			{
@@ -116,7 +150,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 		
 		else if (line[0] == "if")
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			line.erase(line.end() - 1);
 
@@ -145,7 +179,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "elif")
 		{
-			line = Code::get_args(args, line, vars, &lines);
+			line = Code::get_args(args, line, vars, &lines, false);
 
 			line.erase(line.end() - 1);
 
@@ -169,7 +203,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 		{
 			Line cond_line = lines;
 
-			line = Code::get_args(args, line, vars, &cond_line);
+			line = Code::get_args(args, line, vars, &cond_line, false);
 			line.erase(line.end() - 1);
 
 			vector<vector<string>> conds = Condition::get_condition(line);
@@ -188,13 +222,16 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 				exec(argc, args, block, vars, lines);
 				
 				line = Utils::split_string(cond_line[cond_index]);
-				line = Code::get_args(args, line, vars, &cond_line);
+				line = Code::get_args(args, line, vars, &cond_line, false);
 
 				line.erase(line.end() - 1);
 				conds = Condition::get_condition(line);
 
 				cond_res = Condition::check_all(conds);
 			}
+
+			if (!cond_res)
+				i++;
 		}
 
 		else

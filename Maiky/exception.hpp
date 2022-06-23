@@ -16,5 +16,6 @@ public:
 
 	static void _undefined_type(Line line, std::string type_name);
 	static void _missing_attribute(Line& line, std::string _where);
+	static void _missing_index(Line& line, std::string _where);
 	static void _undefined_attribute(Line& line, std::string attribute);
 };

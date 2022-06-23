@@ -47,6 +47,11 @@ void Exception::_missing_attribute(Line& line, string _where)
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute is missing:" << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
 }
 
+void Exception::_missing_index(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the index is missing:" << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
 void Exception::_undefined_attribute(Line& line, string attribute)
 {
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute: " << '\"' + attribute + '\"' << " is undefined:\n\n" << line[line.get_current_line()] << endl;

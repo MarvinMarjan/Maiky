@@ -1,0 +1,38 @@
+start
+	def arr array
+	def inp null
+
+	while *inp != ".exit" do
+		print newl
+		if *inp == "list" then
+			print "values: "
+			print *arr newl
+		end
+
+		elif *inp == "index" then
+			def index null
+
+			print "select a index to list: : "
+			input int index
+
+			print "value: " *arr : *index
+		end
+
+		elif *inp == "add" then
+			def val null
+
+			print "choose a value to add: "
+			input string val
+
+			mod val string "'" + *val + "'"
+
+			*arr -> add *val
+		end
+		
+		print newl "[ list ]" newl "[ index ]" newl "[ add ]" newl newl
+		print "--> "
+		input string inp
+	end
+
+	print "exiting the program..." newl
+end
