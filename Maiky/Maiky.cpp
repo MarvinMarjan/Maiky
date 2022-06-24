@@ -36,7 +36,10 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			continue;
 		}
 
-		if (line[0][0] == '*')
+		if (line[0] == "pause")
+			cin.get();
+
+		else if (line[0][0] == '*')
 		{
 			line[0].erase(0, 1);
 
@@ -301,11 +304,13 @@ int main(int argc, char* argv[])
 	vector<string> program_args;
 
 	if (argc < 2)
+	{
 		program_args = Utils::split_string(Bootstrap::check_runtime_config()["args"]);
+		program_args = Bootstrap::check_program_args(program_args);
+	}
 
 	else
-		for (int i = 2; argv[i] != nullptr; i++)
-			program_args.push_back(argv[i]);
+		program_args = Bootstrap::check_program_args(argc, argv);
 
 	Interpreter source;
 	source.open(source_path);
@@ -326,5 +331,5 @@ int main(int argc, char* argv[])
 		exec(argc, program_args, lines, vars, aux);
 	}
 
-	cin.get();
+	//cin.get();
 }

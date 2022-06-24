@@ -1,4 +1,4 @@
 {
 	"path": "test.txt",
-	"args": "3"
+	"args": "\"hello, world\""
 }
