@@ -263,7 +263,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			line = Code::get_args(args, line, vars, &lines, false);
 			line.erase(line.end() - 1);
 
-			vars.add_iterator(line[0], "_null_", -1);
+			vars.add_iterator(line[0], "null", -1);
 
 			i++;
 			lines.update();
@@ -286,9 +286,6 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			Exception::_cmd_not_found(lines, line[0]);
 			lines.abort = true;
 		}
-
-		//cout << "current: " << lines.get_current_line() << endl;
-		//cout << "true: " << lines.get_true_line() << endl << endl;
 
 		last_lines.update();
 		lines.update();

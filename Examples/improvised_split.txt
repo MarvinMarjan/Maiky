@@ -18,7 +18,7 @@ start
 		end
 	end
 
-	
-	print *arr newl
-	
+	for item in arr do
+		print *item newl
+	end
 end

@@ -183,13 +183,13 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 
 					vector<string> index = Code::get_args(args, value, vars, lines, false);
 
-					if (stoi(index[0]) >= vars.get_array_values(line[i]).size())
+					if (stoi(index[0]) >= vars.get_array_values(line[i])[0].size())
 					{
 						Exception::_array_size_overflow(*lines, line[i] + " " + line[i + 1] + " " + line[i + 2]);
 						lines->abort = true;
 						break;
 					}
-
+					
 					else
 					{
 						string ch(1, vars.get_value(line[i])[stoi(index[0])]);
@@ -211,6 +211,9 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 					lines->abort = true;
 					break;
 				}
+
+				else if (line[i + 2] == "index")
+					args_vec.push_back(to_string(vars.get_iterator_index(line[i])));
 
 				else if (i + 2 < line.size() && line[i + 2] == "type")
 					args_vec.push_back(vars.get_type(line[i]));
@@ -260,13 +263,7 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 						break;
 					}
 				}
-
-				else if (i + 2 < line.size() && vars.get_type(line[i]) == "iterator")
-				{
-					if (line[i + 2] == "index")
-						args_vec.push_back(to_string(vars.get_iterator_index(line[i])));
-				}
-
+				
 				else
 				{
 					Exception::_undefined_attribute(*lines, line[i + 2]);
@@ -283,7 +280,7 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 				string vals_str = "";
 
 				for (int i = 0; i < vals.size(); i++)
-					vals_str += vals[i] + ((i + 1 >= vals.size()) ? "" : ", ");
+					vals_str += vals[i] + ((i + 1 >= vals.size()) ? "" : "  |  ");
 
 				vals_str = "[ " + vals_str + " ]";
 

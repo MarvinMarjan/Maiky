@@ -54,7 +54,7 @@ void Variables::add_var(pair<string, vector<string>> var)
 
 void Variables::add_iterator(string var_name, string value, int index)
 {
-	this->vars.insert({ var_name, {"iterator", value, to_string(index)}});
+	this->vars.insert({ var_name, {this->define_type(value), value, to_string(index)}});
 }
 
 void Variables::edit_array_value(string var_name, string new_value, int index)
@@ -70,6 +70,7 @@ void Variables::edit_var(string var_name, string new_type, string new_value)
 
 void Variables::edit_iterator(string var_name, string new_value, int index)
 {
+	this->vars[var_name][0] = this->define_type(new_value);
 	this->vars[var_name][1] = new_value;
 	this->vars[var_name][2] = to_string(index);
 }
@@ -96,6 +97,31 @@ int Variables::find_array_value(string var_name, string value)
 	return -1;
 }
 
+string Variables::define_type(string value)
+{
+	if (value == "true" || value == "false")
+		return "bool";
+
+	else
+	{
+		try
+		{
+			float _trash = stof(value);
+
+			if (value.find('.') != -1)
+				return "float";
+
+			else
+				return "int";
+		}
+
+		catch(...)
+		{
+			return "string";
+		}
+	}
+}
+
 string Variables::get_type(string var_name)
 {
 	return this->vars[var_name][0];
@@ -110,9 +136,18 @@ vector<string> Variables::get_array_values(string var_name)
 {
 	vector<string> vals;
 
-	for (int i = 1; i < this->vars[var_name].size(); i++)
-		vals.push_back(this->vars[var_name][i]);
-	
+	if (this->get_type(var_name) == "array")
+		for (int i = 1; i < this->vars[var_name].size(); i++)
+			vals.push_back(this->vars[var_name][i]);
+
+	else if (this->get_type(var_name) == "string")
+		for (int i = 0; i < this->vars[var_name][1].size(); i++)
+		{
+			string ch(1, this->vars[var_name][1][i]);
+
+			vals.push_back(ch);
+		}
+
 	return vals;
 }
 

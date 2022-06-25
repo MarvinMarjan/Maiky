@@ -23,6 +23,7 @@ public:
 
 	int find_array_value(std::string var_name, std::string value);
 
+	std::string define_type(std::string value);
 	std::string get_type(std::string var_name);
 	std::string get_value(std::string var_name);
 	std::vector<std::string> get_array_values(std::string var_name);
