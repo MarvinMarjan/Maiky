@@ -3,6 +3,7 @@
 
 #include <iostream>
 
+#include "Maiky_info.hpp"
 #include "exception.hpp"
 #include "utilities.hpp"
 #include "variables.hpp"
@@ -94,6 +95,9 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 	{
 		if (line[i] == "newl")
 			args_vec.push_back("\n");
+
+		else if (line[i] == "-vers")
+			args_vec.push_back("Maiky: " + (string)_VERSION);
 
 		else if (line[i][0] == '\"')
 		{

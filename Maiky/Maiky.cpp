@@ -1,3 +1,5 @@
+// Maiky_info.hpp: #define _VERSION "0.0.1 (BETA)"
+
 #include <iostream>
 #include <fstream>
 #include <vector>
