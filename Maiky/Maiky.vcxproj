@@ -149,6 +149,7 @@
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="interpreter.hpp" />
     <ClInclude Include="line.hpp" />
+    <ClInclude Include="Maiky_info.hpp" />
     <ClInclude Include="utilities.hpp" />
     <ClInclude Include="variables.hpp" />
   </ItemGroup>
