@@ -18,8 +18,14 @@ public:
 	static void _undefined_type(Line line, std::string type_name);
 	static void _undefined_attribute(Line& line, std::string attribute);
 
+	static void _missing_argument(Line& line, std::string _where);
 	static void _missing_attribute(Line& line, std::string _where);
 	static void _missing_index(Line& line, std::string _where);
 
 	static void _array_size_overflow(Line& line, std::string _where);
+
+	static void _could_not_open_file(Line& line, std::string _where);
+	static void _could_not_open_dir(Line& line, std::string _where);
+
+	static void _wrong_parameter_type(Line& line, std::string _where);
 };

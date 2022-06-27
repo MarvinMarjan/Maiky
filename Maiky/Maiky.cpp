@@ -1,4 +1,4 @@
-// Maiky_info.hpp: #define _VERSION "0.0.1 (BETA)"
+// Maiky_info.hpp: #define _VERSION "0.0.3 (BETA)"
 
 #include <iostream>
 #include <fstream>
@@ -12,6 +12,8 @@
 #include "exception.hpp"
 #include "utilities.hpp"
 #include "variables.hpp"
+#include "file_sys.hpp"
+#include "dir_sys.hpp"
 #include "buffer.hpp"
 #include "code.hpp"
 #include "line.hpp"
@@ -70,6 +72,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "print")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (!lines.abort)
@@ -79,6 +87,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "input")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (vars.exist(line[1]))
@@ -97,8 +111,14 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			}
 		}
 
-		else if (line[0] == "def") 
+		else if (line[0] == "def")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, false);
 			line = Code::get_args(args, line, vars, &lines, false);
 
@@ -130,7 +150,13 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 				}
 
 				else
-					vars.add_var({line[0], {line[1], line[2]}});
+				{
+					if (line.size() < 3)
+						vars.add_var({ line[0], {line[1], ""} });
+
+					else
+						vars.add_var({ line[0], {line[1], line[2]} });
+				}
 
 				scope_vars.push_back(line[0]);
 			}
@@ -138,6 +164,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "mod")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			if (!lines.abort)
@@ -173,15 +205,21 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 				}
 			}
 		}
-		
+
 		else if (line[0] == "if")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			line.erase(line.end() - 1);
 
 			vector<vector<string>> conds = Condition::get_condition(line);
-			
+
 			i++;
 			lines.update();
 
@@ -198,13 +236,19 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			lines.update();
 
 			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
-			
+
 			if (!cond_res)
 				exec(argc, args, block, vars, lines);
 		}
 
 		else if (line[0] == "elif")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 
 			line.erase(line.end() - 1);
@@ -227,26 +271,32 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "while")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			Line cond_line = lines;
 
 			line = Code::get_args(args, line, vars, &cond_line, false);
 			line.erase(line.end() - 1);
 
 			vector<vector<string>> conds = Condition::get_condition(line);
-			
+
 			int cond_index = i;
 
 			i++;
 			lines.update();
 
 			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
-			
+
 			cond_res = Condition::check_all(conds);
 
 			while (cond_res)
 			{
 				exec(argc, args, block, vars, lines);
-				
+
 				line = Utils::split_string(cond_line[cond_index]);
 				line = Code::get_args(args, line, vars, &cond_line, false);
 
@@ -262,6 +312,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		else if (line[0] == "for")
 		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
 			line = Code::get_args(args, line, vars, &lines, false);
 			line.erase(line.end() - 1);
 
@@ -280,6 +336,131 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 					exec(argc, args, block, vars, lines);
 				}
+			}
+		}
+
+		else if (line[0] == "mfile")
+		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
+			line = Code::get_args(args, line, vars, &lines, false);
+
+			File_sys::create_file(line[0]);
+		}
+
+		else if (line[0] == "rmfile")
+		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
+			line = Code::get_args(args, line, vars, &lines, false);
+
+			if (File_sys::file_exist(line[0]))
+				File_sys::remove_file(line[0]);
+
+			else
+				Exception::_could_not_open_file(lines, line[0]);
+		}
+
+		else if (line[0] == "mdir")
+		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
+			else
+			{
+				line = Code::get_args(args, line, vars, &lines, false);
+
+				Dir_sys::create_dir(line[0]);
+			}
+		}
+
+		else if (line[0] == "rmdir")
+		{
+			if (line.size() < 2)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
+			else
+			{
+				line = Code::get_args(args, line, vars, &lines, false);
+
+				if (Dir_sys::dir_exist(line[0]))
+					Dir_sys::remove_dir(line[0]);
+
+				else
+				{
+					Exception::_could_not_open_dir(lines, line[0]);
+					lines.abort = true;
+				}
+			}
+		}
+
+		else if (line[0] == "read")
+		{
+			line = Code::get_args(args, line, vars, &lines, false);
+
+			if (File_sys::file_exist(line[0]))
+			{
+				if (vars.exist(line[1]))
+				{
+					if (vars.get_type(line[1]) == "array")
+						vars.edit_array_var(line[1], File_sys::read_file(line[0]));
+
+					else if (vars.get_type(line[1]) == "string")
+					{
+						string content = "";
+
+						for (string str : File_sys::read_file(line[0]))
+							content += str + '\n';
+
+						vars.edit_var(line[1], "string", content);
+					}
+
+					else
+					{
+						Exception::_wrong_parameter_type(lines, line[1]);
+						lines.abort = true;
+					}
+				}
+
+				else
+				{
+					Exception::_var_not_found(lines, line[1]);
+					lines.abort = true;
+				}
+			}
+
+			else
+			{
+				Exception::_could_not_open_file(lines, line[0]);
+				lines.abort = true;
+			}
+		}
+
+		else if (line[0] == "write")
+		{
+			line = Code::get_args(args, line, vars, &lines, false);
+
+			if (File_sys::file_exist(line[0]))
+				File_sys::write_file(line[0], line[1]);
+
+			else
+			{
+				Exception::_could_not_open_file(lines, line[0]);
+				lines.abort = true;
 			}
 		}
 

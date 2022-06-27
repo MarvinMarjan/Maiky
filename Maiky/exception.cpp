@@ -31,11 +31,13 @@ void Exception::_var_not_found(Line& line, string var_name)
 }
 
 
+
 void Exception::_existent_var_def(string var_name, Line line)
 {
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): definition of an existing variable: " << '\"' + var_name + '\"' << ":\n\n" << line[line.get_current_line()] << endl << endl;
 
 }
+
 
 
 void Exception::_undefined_type(Line line, string type_name)
@@ -49,11 +51,17 @@ void Exception::_undefined_attribute(Line& line, string attribute)
 }
 
 
-void Exception::_missing_attribute(Line& line, string _where)
+
+void Exception::_missing_argument(Line& line, string _where)
 {
-	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): the attribute is missing: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): missing argument: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+
 }
 
+void Exception::_missing_attribute(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): missing argument: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
 
 void Exception::_missing_index(Line& line, string _where)
 {
@@ -61,7 +69,25 @@ void Exception::_missing_index(Line& line, string _where)
 }
 
 
+
 void Exception::_array_size_overflow(Line& line, string _where)
 {
 	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): an array overflow happened: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
+
+
+void Exception::_could_not_open_file(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): couldn't open file: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
+void Exception::_could_not_open_dir(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): couldn't open directory: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
+}
+
+void Exception::_wrong_parameter_type(Line& line, string _where)
+{
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): wrong parameter type: " << '\"' + _where + '\"' << "\n\n" << line[line.get_current_line()] << endl << endl;
 }

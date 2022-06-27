@@ -7,6 +7,7 @@
 #include "exception.hpp"
 #include "utilities.hpp"
 #include "variables.hpp"
+#include "file_sys.hpp"
 #include "code.hpp"
 #include "line.hpp"
 
@@ -105,6 +106,16 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 
 			for (int o = i; o < line.size(); o++)
 			{
+				for (int p = 0; p < line[o].size(); p++)
+				{
+					if (line[o][p] == '\\')
+						if (line[o][p + 1] == 'n')
+						{
+							line[o].erase(p + 1, p + 2);
+							line[o][p] = '\n';
+						}
+				}
+
 				full += line[o] + ' ';
 
 				if (line[o] != "" && line[o][line[o].size() - 1] == '\"' && Code::b_e_remove_space(full) != "\"")
@@ -307,13 +318,76 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 			vector<string> aux = { "_null_" };
 
 			for (int o = i + 1; o < line.size(); o++)
-			{
 				aux.push_back(line[o]);
-				i = o;
-			}
 
 			args_vec[args_vec.size() - 1] = args_vec[args_vec.size() - 1] + Code::get_args(args, aux, vars, lines, false)[0];
 			i++;
+		}
+
+		else if (line[i] == "fs_exist")
+		{
+			if (line.size() - 1 == i)
+			{
+				Exception::_missing_argument(*lines, line[i]);
+				lines->abort = true;
+			}
+
+			else
+			{
+				vector<string> aux = { "_null_" };
+
+				for (int o = i + 1; o < line.size(); o++)
+					aux.push_back(line[o]);
+
+				aux = Code::get_args(args, aux, vars, lines, false);
+
+				args_vec.push_back( (File_sys::file_exist(aux[0]) == 0) ? "false" : "true");
+				i++;
+			}
+		}
+
+		else if (line[i] == "fs_size")
+		{
+			if (line.size() - 1 == i)
+			{
+				Exception::_missing_argument(*lines, line[i]);
+				lines->abort = true;
+			}
+
+			else
+			{
+				vector<string> aux = { "_null_" };
+
+				for (int o = i + 1; o < line.size(); o++)
+					aux.push_back(line[o]);
+
+				aux = Code::get_args(args, aux, vars, lines, false);
+
+				args_vec.push_back(to_string(File_sys::get_size(aux[0])));
+				i++;
+			}
+		}
+
+		else if (line[i] == "fs_type")
+		{
+			if (line.size() - 1 == i)
+			{
+				Exception::_missing_argument(*lines, line[i]);
+				lines->abort = true;
+			}
+
+			else
+			{
+				vector<string> aux = { "_null_" };
+
+				for (int o = i + 1; o < line.size(); o++)
+					aux.push_back(line[o]);
+
+				aux = Code::get_args(args, aux, vars, lines, false);
+
+				args_vec.push_back(File_sys::get_type(aux[0]));
+				i++;
+			}
 		}
 
 		else

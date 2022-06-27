@@ -15,6 +15,7 @@ public:
 	void add_iterator(std::string var_name, std::string value, int index);
 
 	void edit_array_value(std::string var_name, std::string new_value, int index);
+	void edit_array_var(std::string var_name, std::vector<std::string> new_array);
 	void edit_var(std::string var_name, std::string new_type, std::string new_value);
 	void edit_iterator(std::string var_name, std::string new_value, int index);
 

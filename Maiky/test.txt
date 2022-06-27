@@ -1,24 +1,11 @@
 start
-	def arr array
+	def cont string
 
-	def str string "hello, world meu nome eh marvin;"
-	def val string ""
+	mfile "hello.txt"
+	write "hello.txt" "hello,\n world"
+	read "hello.txt" cont
 
-	def aux int 1
-	def aux2 bool true
+	print *cont
 
-	for item in str do
-		if *item == " " or *item == ";" then
-			*arr -> add *val
-			mod val string ""
-		end
-
-		else
-			mod val string *val + *item
-		end
-	end
-
-	
-	print *arr newl
 	
 end

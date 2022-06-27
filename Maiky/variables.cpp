@@ -62,6 +62,15 @@ void Variables::edit_array_value(string var_name, string new_value, int index)
 	this->vars[var_name][index + 1] = new_value;
 }
 
+void Variables::edit_array_var(string var_name, vector<string> new_array)
+{
+	if (this->vars[var_name].size() >= 2)
+		this->vars[var_name].erase(this->vars[var_name].begin() + 1);
+
+	for (string val : new_array)
+		this->vars[var_name].push_back(val);
+}
+
 void Variables::edit_var(string var_name, string new_type, string new_value)
 {
 	this->vars[var_name][0] = new_type;

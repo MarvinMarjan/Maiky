@@ -9,7 +9,13 @@ bool Condition::check(vector<string> itr)
 {
 	bool result;
 
-	if (itr[1] == "==")
+	if (itr[0] == "true")
+		return true;
+
+	else if (itr[0] == "false")
+		return false;
+
+	else if (itr[1] == "==")
 		result = (itr[0] == itr[2]);
 
 	else if (itr[1] == "!=")
