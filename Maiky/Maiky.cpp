@@ -32,7 +32,10 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 		vector<string> line = Utils::split_string(lines[i]);
 
 		if (lines.abort)
+		{
+			cin.get();
 			break;
+		}
 
 		if (line.size() == 0)
 		{
