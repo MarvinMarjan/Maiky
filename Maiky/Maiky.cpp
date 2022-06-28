@@ -20,7 +20,7 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& last_lines)
+void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = false)
 {
 	vector<string> scope_vars;
 	Buffer buffer;
@@ -45,6 +45,9 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 		if (line[0] == "pause")
 			cin.get();
+
+		else if (line[0] == "break")
+			*_break = true;
 
 		else if (line[0][0] == '*')
 		{
@@ -230,7 +233,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			cond_res = Condition::check_all(conds);
 
 			if (cond_res)
-				exec(argc, args, block, vars, lines);
+				exec(argc, args, block, vars, lines, _break);
 		}
 
 		else if (line[0] == "else")
@@ -241,7 +244,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
 
 			if (!cond_res)
-				exec(argc, args, block, vars, lines);
+				exec(argc, args, block, vars, lines, _break);
 		}
 
 		else if (line[0] == "elif")
@@ -268,7 +271,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 				cond_res = Condition::check_all(conds);
 
 				if (cond_res)
-					exec(argc, args, block, vars, lines);
+					exec(argc, args, block, vars, lines, _break);
 			}
 		}
 
@@ -298,7 +301,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 			while (cond_res)
 			{
-				exec(argc, args, block, vars, lines);
+				exec(argc, args, block, vars, lines, _break);
 
 				line = Utils::split_string(cond_line[cond_index]);
 				line = Code::get_args(args, line, vars, &cond_line, false);
@@ -333,11 +336,16 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 
 			if (line[1] == "in")
 			{
+				bool _break = false;
+
 				for (int o = 0; o < vars.get_array_values(line[2]).size(); o++)
 				{
 					vars.edit_iterator(line[0], vars.get_array_values(line[2])[o], o);
 
-					exec(argc, args, block, vars, lines);
+					exec(argc, args, block, vars, lines, &_break);
+
+					if (_break)
+						break;
 				}
 			}
 		}
@@ -403,6 +411,49 @@ void exec(int argc, vector<string> args, Line& lines, Variables &vars, Line& las
 				if (Dir_sys::dir_exist(line[0]))
 					Dir_sys::remove_dir(line[0]);
 
+				else
+				{
+					Exception::_could_not_open_dir(lines, line[0]);
+					lines.abort = true;
+				}
+			}
+		}
+
+		else if (line[0] == "read_dir")
+		{
+			if (line.size() < 3)
+			{
+				Exception::_missing_argument(lines, line[0]);
+				lines.abort = true;
+			}
+
+			else
+			{
+				line = Code::get_args(args, line, vars, &lines, false);
+
+				if (Dir_sys::dir_exist(line[0]))
+				{
+					vector<string> list = Dir_sys::get_dir_list(line[0]);
+
+					if (vars.exist(line[1]))
+					{
+						if (vars.get_type(line[1]) == "array")
+							vars.edit_array_var(line[1], list);
+
+						else
+						{
+							Exception::_wrong_parameter_type(lines, line[1]);
+							lines.abort = true;
+						}
+					}
+
+					else
+					{
+						Exception::_var_not_found(lines, line[1]);
+						lines.abort = true;
+					}
+				}
+				
 				else
 				{
 					Exception::_could_not_open_dir(lines, line[0]);

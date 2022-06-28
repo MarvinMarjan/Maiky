@@ -7,6 +7,19 @@
 
 using namespace std;
 
+vector<string> Dir_sys::get_dir_list(string path)
+{
+	DIR* dir = opendir(path.c_str());
+	vector<string> list;
+
+	struct dirent* ent;
+
+	while ((ent = readdir(dir)) != NULL)
+		list.push_back(ent->d_name);
+
+	return list;
+}
+
 void Dir_sys::create_dir(string d_path)
 {
 	int _trash = _mkdir(d_path.c_str());

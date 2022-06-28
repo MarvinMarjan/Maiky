@@ -1,11 +1,7 @@
 start
-	def cont string
+	def list array
 
-	mfile "hello.txt"
-	write "hello.txt" "hello,\n world"
-	read "hello.txt" cont
+	read_dir "./" list
 
-	print *cont
-
-	
+	print *list : 2 newl
 end
