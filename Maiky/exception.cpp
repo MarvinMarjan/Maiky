@@ -6,10 +6,9 @@
 
 using namespace std;
 
-void Exception::_initial_code_block_not_detected(Line& lines)
+void Exception::_main_function_not_found()
 {
-	cout << "ERROR (line " << lines.get_current_line() + 2 << 
-		") : no initial code block detected:\n\n" << lines[lines.get_current_line()] << endl << endl;
+	cout << "ERROR: function \"main\" couldn't be found" << endl << endl;
 }
 
 
@@ -27,7 +26,7 @@ void Exception::_cmd_not_found(Line lines, string cmd_name)
 
 void Exception::_var_not_found(Line& line, string var_name)
 {
-	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line()] << endl << endl;
+	cout << "ERROR (line " << line.get_current_line() + line.get_true_line() + 2 << "): variable " << '\"' + var_name + '\"' << " does not exist:\n\n" << line[line.get_current_line() - 1] << endl << endl;
 }
 
 

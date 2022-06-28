@@ -1,4 +1,4 @@
-#include <rapidjson/include/rapidjson/document.h> // rapidjson/include/rapidjson/document.h
+#include <document.h> // rapidjson/include/rapidjson/document.h
 #include <iostream>
 #include <fstream>
 #include <vector>

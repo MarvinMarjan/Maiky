@@ -2,28 +2,31 @@
 #include <string>
 
 #include "exception.hpp"
+#include "utilities.hpp"
+#include "function.hpp"
 #include "code.hpp"
 #include "line.hpp"
 
 using namespace std;
 
-Line::Line(vector<string> source, int last_i, bool init)
+Line::Line(vector<string> source, int last_i, bool init, Function func)
 {
 	this->lines = source;
-	this->current_line = 0;
+	this->current_line = (init) ? Utils::find_val_array("function main", source) : 0;
 	this->true_line = last_i;
 
 	if (init)
 	{
-		if (this->lines[0] == "start" && this->lines[this->lines.size() - 1] == "end")
+		if (func.func_exist("main"))
 		{
-			this->lines = Code::get_code_block(*this, 1);
+			this->lines = func.get_func("main").second;
 			this->abort = false;
 		}
+		
 
 		else
 		{
-			Exception::_initial_code_block_not_detected(*this);
+			Exception::_main_function_not_found();
 			this->abort = true;
 		}
 	}

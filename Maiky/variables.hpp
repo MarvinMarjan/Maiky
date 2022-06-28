@@ -30,6 +30,8 @@ public:
 	std::vector<std::string> get_array_values(std::string var_name);
 	int get_iterator_index(std::string var_name);
 
+	std::vector<std::string> get_var_list();
+
 	bool exist(std::string var_name);
 
 private:

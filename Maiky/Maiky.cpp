@@ -13,6 +13,7 @@
 #include "utilities.hpp"
 #include "variables.hpp"
 #include "file_sys.hpp"
+#include "function.hpp"
 #include "dir_sys.hpp"
 #include "buffer.hpp"
 #include "code.hpp"
@@ -20,9 +21,9 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = nullptr)
+void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = nullptr, Function& funcs = (Function&)Function(), bool inherit_scope = false, string func_name = "_null_")
 {
-	vector<string> scope_vars;
+	vector<string> scope_vars = (inherit_scope) ? vars.get_var_list() : vector<string>();
 	Buffer buffer;
 
 	bool cond_res = true;
@@ -43,8 +44,51 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 			continue;
 		}
 
+		for (int o = 1; o < line.size(); o++)
+		{
+			if (funcs.func_exist(line[o]))
+			{
+				vector<string> _args = { "_null_" };
+				
+				for (int p = o + 1; p < line.size(); p++)
+					_args.push_back(line[p]);
+
+				_args = Code::get_args(args, _args, vars, &lines, false, funcs);
+
+				if (o + 1 < line.size())
+					for (int p = o + 1; p < funcs.get_args(line[o]).second.size(); p++)
+						if (p + 1 >= funcs.get_args(line[o]).second.size())
+						{
+							_args = Utils::erase(_args, o, _args.size() - 1);
+							break;
+						}
+
+				Line block(funcs.get_func(line[o]).second, i, false, funcs);
+
+				for (int p = 0; p < funcs.get_args(line[o]).second.size(); p++)
+					vars.add_var({
+						funcs.get_args(line[o]).second[p],
+						{ vars.define_type(_args[p]), _args[p] }
+					});
+
+				exec(argc, args, block, vars, lines, _break, funcs, false, line[o]);
+			}
+		}
+
 		if (line[0] == "pause")
 			cin.get();
+
+		else if (line[0] == "return")
+		{
+			vector<string> value = { "_null_" };
+
+			for (int o = 1; o < line.size(); o++)
+				value.push_back(line[o]);
+
+			value = Code::get_args(args, value, vars, &lines, false, funcs);
+
+			funcs.set_return(func_name, value);
+		}
 
 		else if (line[0] == "break")
 			*_break = true;
@@ -65,7 +109,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				{
 					if (2 < line.size() && line[2] == "add")
 					{
-						vector<string> val = Code::get_args(args, { "_null_", line[3] }, vars, &lines, true);
+						vector<string> val = Code::get_args(args, { "_null_", line[3] }, vars, &lines, true, funcs);
 
 						vars.add_array_value(line[0], val[0]);
 					}
@@ -76,6 +120,27 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 			}
 		}
 
+		else if (funcs.func_exist(line[0]))
+		{
+			Line block(funcs.get_func(line[0]).second, lines.get_current_line(), false, funcs);
+
+			vector<string> args_val = { "_null_" };
+
+			for (int o = 1; o < line.size(); o++)
+				args_val.push_back(line[o]);
+
+			args_val = Code::get_args(args, args_val, vars, &lines, false, funcs);
+
+			vector<string> args_name = funcs.get_args(line[0]).second;
+
+			for (int o = 0; o < args_name.size(); o++)
+				vars.add_var({ args_name[o], {vars.define_type(args_val[o]), args_val[o]} });
+			
+			funcs.set_args_val(line[0], args_val);
+
+			exec(argc, args, block, vars, lines, nullptr, funcs, false, line[0]);
+		}
+
 		else if (line[0] == "print")
 		{
 			if (line.size() < 2)
@@ -84,7 +149,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (!lines.abort)
 				for (string i : line)
@@ -99,7 +164,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (vars.exist(line[1]))
 			{
@@ -125,8 +190,8 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, false);
-			line = Code::get_args(args, line, vars, &lines, false);
+			vector<string> quotes_line = Code::get_args(args, line, vars, &lines, false, funcs);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (line[1] == "null")
 				line.push_back("null");
@@ -176,7 +241,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (!lines.abort)
 			{
@@ -220,7 +285,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			line.erase(line.end() - 1);
 
@@ -233,7 +298,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 			cond_res = Condition::check_all(conds);
 
 			if (cond_res)
-				exec(argc, args, block, vars, lines, _break);
+				exec(argc, args, block, vars, lines, _break, funcs);
 		}
 
 		else if (line[0] == "else")
@@ -244,7 +309,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 			Line block(Code::get_code_block(lines, &i), lines.get_current_line(), false);
 
 			if (!cond_res)
-				exec(argc, args, block, vars, lines, _break);
+				exec(argc, args, block, vars, lines, _break, funcs);
 		}
 
 		else if (line[0] == "elif")
@@ -255,7 +320,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			line.erase(line.end() - 1);
 
@@ -271,7 +336,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				cond_res = Condition::check_all(conds);
 
 				if (cond_res)
-					exec(argc, args, block, vars, lines, _break);
+					exec(argc, args, block, vars, lines, _break, funcs);
 			}
 		}
 
@@ -285,7 +350,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			Line cond_line = lines;
 
-			line = Code::get_args(args, line, vars, &cond_line, false);
+			line = Code::get_args(args, line, vars, &cond_line, false, funcs);
 			line.erase(line.end() - 1);
 
 			vector<vector<string>> conds = Condition::get_condition(line);
@@ -301,10 +366,10 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			while (cond_res)
 			{
-				exec(argc, args, block, vars, lines, _break);
+				exec(argc, args, block, vars, lines, _break, funcs);
 
 				line = Utils::split_string(cond_line[cond_index]);
-				line = Code::get_args(args, line, vars, &cond_line, false);
+				line = Code::get_args(args, line, vars, &cond_line, false, funcs);
 
 				line.erase(line.end() - 1);
 				conds = Condition::get_condition(line);
@@ -324,7 +389,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 			line.erase(line.end() - 1);
 
 			vars.add_iterator(line[0], "null", -1);
@@ -342,7 +407,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				{
 					vars.edit_iterator(line[0], vars.get_array_values(line[2])[o], o);
 
-					exec(argc, args, block, vars, lines, &_break);
+					exec(argc, args, block, vars, lines, &_break, funcs);
 
 					if (_break)
 						break;
@@ -358,7 +423,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			File_sys::create_file(line[0]);
 		}
@@ -371,7 +436,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				lines.abort = true;
 			}
 
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (File_sys::file_exist(line[0]))
 				File_sys::remove_file(line[0]);
@@ -390,7 +455,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			else
 			{
-				line = Code::get_args(args, line, vars, &lines, false);
+				line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 				Dir_sys::create_dir(line[0]);
 			}
@@ -406,7 +471,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			else
 			{
-				line = Code::get_args(args, line, vars, &lines, false);
+				line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 				if (Dir_sys::dir_exist(line[0]))
 					Dir_sys::remove_dir(line[0]);
@@ -429,7 +494,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			else
 			{
-				line = Code::get_args(args, line, vars, &lines, false);
+				line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 				if (Dir_sys::dir_exist(line[0]))
 				{
@@ -464,7 +529,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 		else if (line[0] == "read")
 		{
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (File_sys::file_exist(line[0]))
 			{
@@ -506,7 +571,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 		else if (line[0] == "write")
 		{
-			line = Code::get_args(args, line, vars, &lines, false);
+			line = Code::get_args(args, line, vars, &lines, false, funcs);
 
 			if (File_sys::file_exist(line[0]))
 				File_sys::write_file(line[0], line[1]);
@@ -549,12 +614,16 @@ int main(int argc, char* argv[])
 	Interpreter source;
 	source.open(source_path);
 
+	vector<string> content = source.read();
+
+	Function funcs(content);
+
 	if (!source.could_open())
 		Exception::_file_not_found(source_path);
 
 	else
 	{
-		Line lines(source.read(), 0, true);
+		Line lines(content, 0, true, funcs);
 		Line aux({}, 0, false);
 	
 		for (int i = 0; i < lines.get_size(); i++)
@@ -562,7 +631,7 @@ int main(int argc, char* argv[])
 
 		Variables vars;
 
-		exec(argc, program_args, lines, vars, aux);
+		exec(argc, program_args, lines, vars, aux, nullptr, funcs);
 	}
 
 	//cin.get();

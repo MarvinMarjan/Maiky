@@ -137,6 +137,7 @@
     <ClCompile Include="dir_sys.cpp" />
     <ClCompile Include="exception.cpp" />
     <ClCompile Include="file_sys.cpp" />
+    <ClCompile Include="function.cpp" />
     <ClCompile Include="line.cpp" />
     <ClCompile Include="Maiky.cpp" />
     <ClCompile Include="interpreter.cpp" />
@@ -151,6 +152,7 @@
     <ClInclude Include="dir_sys.hpp" />
     <ClInclude Include="exception.hpp" />
     <ClInclude Include="file_sys.hpp" />
+    <ClInclude Include="function.hpp" />
     <ClInclude Include="interpreter.hpp" />
     <ClInclude Include="line.hpp" />
     <ClInclude Include="Maiky_info.hpp" />

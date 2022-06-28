@@ -165,6 +165,16 @@ int Variables::get_iterator_index(string var_name)
 	return stoi(this->vars[var_name][2]);
 }
 
+vector<string> Variables::get_var_list()
+{
+	vector<string> vars;
+
+	for (auto i : this->vars)
+		vars.push_back(i.first);
+
+	return vars;
+}
+
 bool Variables::exist(string var_name)
 {
 	for (auto i : this->vars)

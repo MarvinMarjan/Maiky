@@ -3,10 +3,12 @@
 #include <string>
 #include <vector>
 
+#include "function.hpp"
+
 class Line
 {
 public:
-	Line(std::vector<std::string> source, int last_i, bool init);
+	Line(std::vector<std::string> source, int last_i, bool init, Function func = Function());
 
 	std::string operator[](int index);
 	void operator=(std::vector<std::string> lines);

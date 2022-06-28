@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <map>
 
 #include <iostream>
 
@@ -88,7 +89,7 @@ string Code::b_e_remove_space(string source)
 	return source;
 }
 
-vector<string> Code::get_args(vector<string> args, vector<string> line, Variables vars, Line* lines, bool ignore_quotes)
+vector<string> Code::get_args(vector<string> args, vector<string> line, Variables vars, Line* lines, bool ignore_quotes, Function func)
 {
 	vector<string> args_vec;
 
@@ -99,6 +100,32 @@ vector<string> Code::get_args(vector<string> args, vector<string> line, Variable
 
 		else if (line[i] == "-vers")
 			args_vec.push_back("Maiky: " + (string)_VERSION);
+
+		else if (func.func_exist(line[i]))
+		{
+			vector<string> args = {"_null_"};
+			int aux = i + 1;
+
+			for (int o = i + 1; o < line.size(); o++)
+			{
+				if (line[o] == ";" || o + 1 >= line.size())
+				{
+					aux = o + 1;
+
+					break;
+				}
+
+				else
+					args.push_back(line[o]);
+			}
+
+			args = Code::get_args(args, args, vars, lines, false);
+
+			args_vec.push_back(func.get_return_value(line[i])[0]);
+
+			i = aux - 1;
+			continue;
+		}
 
 		else if (line[i][0] == '\"')
 		{

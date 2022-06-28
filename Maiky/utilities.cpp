@@ -32,3 +32,23 @@ string Utils::concat_string(vector<string> source)
 	
 	return full;
 }
+
+int Utils::find_val_array(string val, vector<string> target)
+{
+	for (int i = 0; i < target.size(); i++)
+		if (target[i] == val)
+			return i;
+
+	return -1;
+}
+
+vector<string> Utils::erase(vector<string> target, int start, int end)
+{
+	vector<string> new_array;
+
+	for (int i = 0; i < target.size(); i++)
+		if (i <= start || i > end)
+			new_array.push_back(target[i]);
+	
+	return new_array;
+}

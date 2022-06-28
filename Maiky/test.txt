@@ -1,7 +1,15 @@
+function main
 start
-	def list array
+	def inp string u_inp
 
-	read_dir "./" list
+	print *inp
+end
 
-	print *list : 2 newl
+function u_inp
+start
+	def input null
+
+	input string input
+
+	return *input
 end
