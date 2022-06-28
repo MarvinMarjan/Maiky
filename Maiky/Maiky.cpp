@@ -20,7 +20,7 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = false)
+void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = nullptr)
 {
 	vector<string> scope_vars;
 	Buffer buffer;
