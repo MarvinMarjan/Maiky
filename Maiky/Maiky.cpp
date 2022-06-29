@@ -1,4 +1,4 @@
-// Maiky_info.hpp: #define _VERSION "0.0.3 (BETA)"
+// Maiky_info.hpp: #define _VERSION "0.0.5 (BETA)"
 
 #include <iostream>
 #include <fstream>
@@ -21,7 +21,7 @@
 
 using namespace std;
 
-void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = nullptr, Function& funcs = (Function&)Function(), bool inherit_scope = false, string func_name = "_null_")
+void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& last_lines, bool* _break = nullptr, Function* funcs = nullptr, bool inherit_scope = false, string func_name = "_null_")
 {
 	vector<string> scope_vars = (inherit_scope) ? vars.get_var_list() : vector<string>();
 	Buffer buffer;
@@ -46,7 +46,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 		for (int o = 1; o < line.size(); o++)
 		{
-			if (funcs.func_exist(line[o]))
+			if (funcs->func_exist(line[o]))
 			{
 				vector<string> _args = { "_null_" };
 				
@@ -56,18 +56,18 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 				_args = Code::get_args(args, _args, vars, &lines, false, funcs);
 
 				if (o + 1 < line.size())
-					for (int p = o + 1; p < funcs.get_args(line[o]).second.size(); p++)
-						if (p + 1 >= funcs.get_args(line[o]).second.size())
+					for (int p = o + 1; p < funcs->get_args(line[o]).second.size(); p++)
+						if (p + 1 >= funcs->get_args(line[o]).second.size())
 						{
 							_args = Utils::erase(_args, o, _args.size() - 1);
 							break;
 						}
 
-				Line block(funcs.get_func(line[o]).second, i, false, funcs);
+				Line block(funcs->get_func(line[o]).second, i, false, funcs);
 
-				for (int p = 0; p < funcs.get_args(line[o]).second.size(); p++)
+				for (int p = 0; p < funcs->get_args(line[o]).second.size(); p++)
 					vars.add_var({
-						funcs.get_args(line[o]).second[p],
+						funcs->get_args(line[o]).second[p],
 						{ vars.define_type(_args[p]), _args[p] }
 					});
 
@@ -87,7 +87,7 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			value = Code::get_args(args, value, vars, &lines, false, funcs);
 
-			funcs.set_return(func_name, value);
+			funcs->set_return(func_name, value);
 		}
 
 		else if (line[0] == "break")
@@ -120,9 +120,9 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 			}
 		}
 
-		else if (funcs.func_exist(line[0]))
+		else if (funcs->func_exist(line[0]))
 		{
-			Line block(funcs.get_func(line[0]).second, lines.get_current_line(), false, funcs);
+			Line block(funcs->get_func(line[0]).second, lines.get_current_line(), false, funcs);
 
 			vector<string> args_val = { "_null_" };
 
@@ -131,12 +131,12 @@ void exec(int argc, vector<string> args, Line& lines, Variables& vars, Line& las
 
 			args_val = Code::get_args(args, args_val, vars, &lines, false, funcs);
 
-			vector<string> args_name = funcs.get_args(line[0]).second;
+			vector<string> args_name = funcs->get_args(line[0]).second;
 
 			for (int o = 0; o < args_name.size(); o++)
 				vars.add_var({ args_name[o], {vars.define_type(args_val[o]), args_val[o]} });
 			
-			funcs.set_args_val(line[0], args_val);
+			funcs->set_args_val(line[0], args_val);
 
 			exec(argc, args, block, vars, lines, nullptr, funcs, false, line[0]);
 		}
@@ -616,7 +616,7 @@ int main(int argc, char* argv[])
 
 	vector<string> content = source.read();
 
-	Function funcs(content);
+	Function* funcs = new Function(content);
 
 	if (!source.could_open())
 		Exception::_file_not_found(source_path);
@@ -633,6 +633,8 @@ int main(int argc, char* argv[])
 
 		exec(argc, program_args, lines, vars, aux, nullptr, funcs);
 	}
+
+	delete funcs;
 
 	//cin.get();
 }

@@ -1,0 +1,29 @@
+function main
+start
+	def arr array 3 2 5
+
+	print get_type 9.3 ; newl
+	print get_len *arr ; newl
+	print u_inp string
+
+	pause
+end
+
+function get_type var
+start
+	return *var -> type
+end
+
+function get_len arr
+start
+	return *arr -> size
+end
+
+function u_inp type
+start
+	def buff null
+
+	input *type buff
+
+	return *buff
+end

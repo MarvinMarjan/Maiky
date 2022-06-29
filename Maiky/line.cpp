@@ -9,7 +9,7 @@
 
 using namespace std;
 
-Line::Line(vector<string> source, int last_i, bool init, Function func)
+Line::Line(vector<string> source, int last_i, bool init, Function* func)
 {
 	this->lines = source;
 	this->current_line = (init) ? Utils::find_val_array("function main", source) : 0;
@@ -17,9 +17,9 @@ Line::Line(vector<string> source, int last_i, bool init, Function func)
 
 	if (init)
 	{
-		if (func.func_exist("main"))
+		if (func->func_exist("main"))
 		{
-			this->lines = func.get_func("main").second;
+			this->lines = func->get_func("main").second;
 			this->abort = false;
 		}
 		

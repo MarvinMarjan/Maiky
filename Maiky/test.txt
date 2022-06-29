@@ -1,15 +1,10 @@
 function main
 start
-	def inp string u_inp
-
-	print *inp
+	print concat "hello, " "world" ;
+	pause
 end
 
-function u_inp
+function concat str1 str2
 start
-	def input null
-
-	input string input
-
-	return *input
+	return *str1 + *str2
 end

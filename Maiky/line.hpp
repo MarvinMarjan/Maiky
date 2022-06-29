@@ -8,7 +8,7 @@
 class Line
 {
 public:
-	Line(std::vector<std::string> source, int last_i, bool init, Function func = Function());
+	Line(std::vector<std::string> source, int last_i, bool init, Function* func = nullptr);
 
 	std::string operator[](int index);
 	void operator=(std::vector<std::string> lines);
